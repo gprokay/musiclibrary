@@ -1,0 +1,8 @@
+﻿CREATE TABLE [Library].[Album]
+(
+	[Id] INT NOT NULL IDENTITY(1,1)
+	,[Title] NVARCHAR(2000) NOT NULL 
+	,[UniqueId] NVARCHAR(4000) NOT NULL UNIQUE,
+    CONSTRAINT [PK_Albums] PRIMARY KEY ([Id])
+)
+

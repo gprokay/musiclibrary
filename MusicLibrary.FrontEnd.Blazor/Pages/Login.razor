@@ -1,0 +1,28 @@
+﻿@using MatBlazor;
+@using MusicLibrary.FrontEnd.Blazor.Services;
+@using System.Web;
+
+@inject IJSRuntime JsRuntime;
+@inject AuthenticationStateProvider AuthStateProvider;
+@inject HttpClient HttpClient;
+
+<div style="width: 100vw; height: 100vh; display: flex; flex-direction: column; align-items: center; align-content: center; justify-content: center;">
+    <h2>Login required to access page content</h2>
+    <MatButton Raised="true" OnClick="LoginWithGoogle">Login with google</MatButton>
+</div>
+
+@functions
+{
+    public async void LoginWithGoogle()
+    {
+        await JsRuntime.InvokeAsync<string>("getAccessCode", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public async Task AccessCodeCallback(string code)
+    {
+        var tokenResponse = await HttpClient.GetAsync("token/google?authCode=" + code);
+        var token = await tokenResponse.Content.ReadAsStringAsync();
+        await (AuthStateProvider as MusicLibraryAuthenticationStateProvider).SetToken(token);
+    }
+}

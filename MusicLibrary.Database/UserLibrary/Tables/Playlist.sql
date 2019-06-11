@@ -1,0 +1,6 @@
+﻿CREATE TABLE [UserLibrary].[Playlist]
+(
+	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1)
+	,[Name] NVARCHAR(250) NOT NULL
+	,[UserId] INT NOT NULL FOREIGN KEY REFERENCES [Auth].[User](Id)
+)

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UserSecretsId>8e52a36e-46e8-4f82-a749-fc2153eea045</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Apis" Version="1.41.1" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.41.1" />
+    <PackageReference Include="Google.Apis.Oauth2.v2" Version="1.41.1.1602" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GP.Tools.DriveService\GP.Tools.DriveService.csproj" />
+    <ProjectReference Include="..\MusicLibrary.DataAccess\MusicLibrary.DataAccess.csproj" />
+    <ProjectReference Include="..\MusicLibrary.Services\MusicLibrary.Services.csproj" />
+    <ProjectReference Include="..\MusicLibrary.Settings\MusicLibrary.Settings.csproj" />
+    <ProjectReference Include="..\MusicLibrary.Shared\MusicLibrary.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

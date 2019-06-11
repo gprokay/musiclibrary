@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="Google.Apis.Oauth2.v2" Version="1.41.1.1602" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="5.5.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.5.0" />
+    <PackageReference Include="System.Management" Version="4.6.0" />
+    <PackageReference Include="taglib-sharp-netstandard2.0" Version="2.1.0" />
+    <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GP.Tools.DriveService.AzureFileStorage\GP.Tools.DriveService.AzureFileStorage.csproj" />
+    <ProjectReference Include="..\GP.Tools.DriveService.FileSystem\GP.Tools.DriveService.FileSystem.csproj" />
+    <ProjectReference Include="..\GP.Tools.DriveService\GP.Tools.DriveService.csproj" />
+    <ProjectReference Include="..\MusicLibrary.DataAccess\MusicLibrary.DataAccess.csproj" />
+    <ProjectReference Include="..\MusicLibrary.Shared\MusicLibrary.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DriveService\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,138 @@
+﻿@using MusicLibrary.FrontEnd.Blazor.Services;
+
+@inject NavigationManager NavigationManager;
+@inject IJSRuntime JsRuntime;
+@inject AuthenticationStateProvider AuthStateProvider;
+@inject HttpClient HttpClient;
+
+<CascadingAuthenticationState>
+    <AuthorizeView>
+        <Authorized>
+            <MatAppBarContainer>
+                <MatAppBar Fixed="true">
+                    <MatAppBarRow>
+                        <MatAppBarSection>
+                            <MatIconButton Icon="menu" OnClick="@((e) => ButtonClicked())"></MatIconButton>
+                            <MatAppBarTitle>MusicLibrary Client</MatAppBarTitle>
+                        </MatAppBarSection>
+                        <MatAppBarSection>
+                            <input style="width: 100%;" type="text" placeholder="Search" @onkeydown="@Search" @bind-value="SearchValue" @bind-value:event="oninput" />
+                        </MatAppBarSection>
+                        <MatAppBarSection Align="@MatAppBarSectionAlign.End">
+                            <MatButton Unelevated="true" Icon="face" OnClick="@UserMenuButtonClick" @ref="UserMenuButton">@context.User.Identity.Name</MatButton>
+                            <MatMenu @ref="UserMenu">
+                                <MatList>
+                                    <MatListItem OnClick="Logout">
+                                        <MatIcon>exit_to_app</MatIcon>
+                                        <MatListItemText>
+                                            Logout
+                                        </MatListItemText>
+                                    </MatListItem>
+                                </MatList>
+                            </MatMenu>
+                        </MatAppBarSection>
+                    </MatAppBarRow>
+                </MatAppBar>
+
+                <MatAppBarContent>
+
+                    <MatDrawerContainer>
+                        <MatDrawer @bind-Opened="@Opened" Mode="@MatDrawerMode.Modal">
+                            <MatList SingleSelection="true">
+                                <MatListGroupSubHeader>Menu</MatListGroupSubHeader>
+                                <MatListItem OnClick="@GoToHome">
+                                    <MatIcon>home</MatIcon>
+                                    <MatListItemText>
+                                        Home
+                                    </MatListItemText>
+                                </MatListItem>
+                                <MatListItem OnClick="@GoToMyLibrary">
+                                    <MatIcon>library_music</MatIcon>
+                                    <MatListItemText>
+                                        My Library
+                                    </MatListItemText>
+                                </MatListItem>
+                                <MatDivider></MatDivider>
+                                <MatListGroupSubHeader>Playlists</MatListGroupSubHeader>
+                            </MatList>
+                        </MatDrawer>
+
+                        <MatDrawerContent>
+                            <div style="display: flex; flex-direction: column; width: 100vw; height: calc(100vh - 64px);">
+                                <div style="flex: 1; overflow: auto;">
+                                    <Router AppAssembly="typeof(Program).Assembly">
+                                        <Found Context="routeData">
+                                            <RouteView RouteData="routeData"></RouteView>
+                                        </Found>
+                                        <NotFound>
+                                            <p>Sorry, there's nothing at this address.</p>
+                                        </NotFound>
+                                    </Router>
+                                </div>
+                                <div style="height: 100px; flex-shrink: 0;">
+                                    <Player></Player>
+                                </div>
+                            </div>
+                        </MatDrawerContent>
+                    </MatDrawerContainer>
+
+                </MatAppBarContent>
+            </MatAppBarContainer>
+        </Authorized>
+        <NotAuthorized>
+            <Login></Login>
+        </NotAuthorized>
+    </AuthorizeView>
+</CascadingAuthenticationState>
+
+
+@functions
+{
+    public bool Opened = false;
+
+    public string SearchValue { get; set; }
+
+    BaseMatButton UserMenuButton;
+    BaseMatMenu UserMenu;
+
+    public void UserMenuButtonClick(MouseEventArgs e)
+    {
+        this.UserMenu.OpenAsync(UserMenuButton.Ref);
+    }
+
+    public void ButtonClicked()
+    {
+        Opened = !Opened;
+    }
+
+    public void Search(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" && !string.IsNullOrEmpty(SearchValue))
+        {
+            NavigationManager.NavigateTo("search/" + SearchValue);
+        }
+    }
+
+    public void GoToHome()
+    {
+        NavigationManager.NavigateTo("/");
+        Opened = false;
+    }
+
+    public void GoToMyLibrary()
+    {
+        NavigationManager.NavigateTo("/library");
+        Opened = false;
+    }
+
+    public async Task Logout()
+    {
+        await (AuthStateProvider as MusicLibraryAuthenticationStateProvider).ClearToken();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient.BaseAddress = new Uri("http://localhost:63973/");
+        await JsRuntime.InvokeAsync<string>("start");
+    }
+}

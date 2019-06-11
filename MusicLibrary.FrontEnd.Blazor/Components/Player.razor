@@ -1,0 +1,233 @@
+﻿@using MusicLibrary.FrontEnd.Blazor.Services;
+@using MusicLibrary.Model;
+
+@inject TrackClientService TrackService;
+@inject IJSRuntime JSRuntime;
+@inject PlayService PlayService;
+
+<MatProgressBar @ref="ProgressBarElement" Progress="@Progress" Buffer="@Buffer"></MatProgressBar>
+
+<div style="width: 100%; height: 96px; background-color: wheat; display: flex; align-items: center; justify-content: space-around;">
+
+    @if (Track != null)
+    {
+        <div style="display:flex; align-items: center; width: 33%;">
+            <img style="margin: 0 10px;" src="img/default_album_art_1400.png" height="70" width="70" />
+            <div style="display: flex; flex-direction: column; justify-content: center; width: 300px;">
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span>@Track.Title</span>
+                </div>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    @foreach (var artist in Track.Artists)
+                    {
+                        <i>@artist.Name</i>
+                    }
+                </div>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <strong>@Track.Album.Title</strong>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div style="width: 33%;"></div>
+    }
+
+    <div style="display:flex; flex-direction: column; align-items:center; justify-content: center; width: 33%;">
+        <div>
+            @if (Track != null && Track.SavedToLibrary)
+            {
+                <MatIconButton Disabled="@TrackActionsDisabled" Icon="favorite" OnClick="@(async ()=> await RemoveTrackFromLibrary(Track.Id))"></MatIconButton>
+            }
+            else
+            {
+                <MatIconButton Disabled="@TrackActionsDisabled" Icon="favorite_border" OnClick="@(async ()=> await AddTrackToLibrary(Track.Id))"></MatIconButton>
+            }
+
+            <MatIconButton Disabled="@PreviousTrackDisabled" Icon="skip_previous" OnClick="@(() => PlayService.PlayPrevious())"></MatIconButton>
+
+            @if (Playing)
+            {
+                <MatIconButton Disabled="@PlayDisabled" Icon="pause" OnClick="Pause"></MatIconButton>
+            }
+            else
+            {
+                <MatIconButton Disabled="@PlayDisabled" Icon="play_arrow" OnClick="Play"></MatIconButton>
+            }
+
+            <MatIconButton Disabled="@NextTrackDisabled" Icon="skip_next" OnClick="@(() => PlayService.PlayNext())"></MatIconButton>
+
+            <MatIconButton Disabled="@TrackActionsDisabled" Icon="more_vert"></MatIconButton>
+        </div>
+    </div>
+
+    <div style="width: 33%; text-align: right; padding: 0 10px;">
+        @if (PlayDisabled)
+        {
+            <span>loading</span>
+        }
+        else
+        {
+            <span>@TimeSpan.FromSeconds(CurrentTime).ToString(DurationFormat) / @TimeSpan.FromSeconds(Length).ToString(DurationFormat)</span>
+        }
+    </div>
+</div>
+
+
+
+
+<audio id="audio" src="@AudioSrc" autoplay>
+</audio>
+
+@functions
+{
+    public MatProgressBar ProgressBarElement { get; set; }
+
+    public string AudioSrc { get; set; }
+    public bool Playing { get; set; } = false;
+    public double Length { get; set; } = 0;
+    public double CurrentTime { get; set; } = 0;
+    public double BufferedLength { get; set; } = 0;
+
+    public bool PlayDisabled { get; set; } = true;
+    public bool NextTrackDisabled { get; set; } = true;
+    public bool PreviousTrackDisabled { get; set; } = true;
+    public bool TrackActionsDisabled { get; set; } = true;
+
+    public string DurationFormat { get; set; } = @"mm\:ss";
+
+    public double Progress = 0;
+    public double Buffer = 1;
+
+    public Track Track { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        PlayService.OnPlayTrack += PlayTrack;
+        TrackService.OnLibraryToggle += TrackLibraryToggled;
+        return base.OnInitializedAsync();
+    }
+
+    private void TrackLibraryToggled(object sender, TrackLibraryToggledEventArgs e)
+    {
+        Track.SavedToLibrary = e.Toggle;
+    }
+
+    // ProgressBarElement is not filled in Init and ParamaterSet methods
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeAsync<string>("initAudio", DotNetObjectReference.Create(this), ProgressBarElement.Ref);
+            PlayService.SetTracks(new[] { 1, 2 });
+            await PlayService.PlayTrack(1);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public Task AddTrackToLibrary(int trackId)
+    {
+        return TrackService.ToggleTrackInLibrary(trackId, true);
+    }
+
+    public Task RemoveTrackFromLibrary(int trackId)
+    {
+        return TrackService.ToggleTrackInLibrary(trackId, false);
+    }
+
+    public async void PlayTrack(object sender, PlayTrackEventArgs e)
+    {
+        Track = e.Track;
+        PreviousTrackDisabled = !e.HasPreviousTrack;
+        NextTrackDisabled = !e.HasNextTrack;
+        TrackActionsDisabled = e.Track == null;
+        AudioSrc = await TrackService.GetStreamUrl(e.Track.Id);
+        StateHasChanged();
+    }
+
+    public async void Play()
+    {
+        await JSRuntime.InvokeAsync<string>("audioApi.play");
+    }
+
+    public async void Pause()
+    {
+        await JSRuntime.InvokeAsync<string>("audioApi.pause");
+    }
+
+    [JSInvokable]
+    public void PlayStarted()
+    {
+        Playing = true;
+        StateHasChanged();
+        Console.WriteLine("Play started");
+    }
+
+    [JSInvokable]
+    public void LoadStarted()
+    {
+        PlayDisabled = true;
+        CurrentTime = 0;
+        BufferedLength = 0;
+        Buffer = 0;
+        Progress = 0;
+        StateHasChanged();
+        Console.WriteLine("Load started ");
+    }
+
+    [JSInvokable]
+    public void CanPlayTriggered(double duration)
+    {
+        PlayDisabled = false;
+        Length = duration;
+        DurationFormat = GetTimeFormat(duration);
+        StateHasChanged();
+        Play();
+        Console.WriteLine("Can play " + duration);
+    }
+
+    [JSInvokable]
+    public void PlayPaused()
+    {
+        Playing = false;
+        StateHasChanged();
+        Console.WriteLine("Paused");
+    }
+
+    [JSInvokable]
+    public async Task Seeked(double seek)
+    {
+        Console.WriteLine("Seekd " + seek);
+        await JSRuntime.InvokeAsync<string>("audioApi.seek", seek * Length);
+    }
+
+    [JSInvokable]
+    public void Progressed(double currentTime, double lastBuffer)
+    {
+        CurrentTime = currentTime;
+        BufferedLength = lastBuffer;
+
+        if (Length > 0)
+        {
+            Progress = CurrentTime / Length;
+            Buffer = BufferedLength / Length;
+        }
+
+        StateHasChanged();
+        Console.WriteLine("Progress " + currentTime + " " + lastBuffer + " " + Length);
+    }
+
+    private string GetTimeFormat(double durationSeconds)
+    {
+        if (durationSeconds > 60 * 60)
+        {
+            return @"hh\:mm\:ss";
+        }
+        else
+        {
+            return @"mm\:ss";
+        }
+    }
+}

@@ -1,0 +1,56 @@
+﻿@using MusicLibrary.FrontEnd.Blazor.Services;
+@using MusicLibrary.Model;
+
+@page "/search/{SearchText}";
+@inject TrackClientService  TrackService;
+You've searched for: @SearchText
+<br />
+<br />
+
+@if (Tracks != null)
+{
+    <MatTable Items="@Tracks.Items" ShowPaging="@false">
+        <MatTableHeader>
+            <th>Title</th>
+            <th>Album</th>
+            <th>Duration</th>
+        </MatTableHeader>
+        <MatTableRow>
+            <td>@context.Title</td>
+            <td>@context.Album.Title</td>
+            <td>@TimeSpan.FromSeconds(context.Duration).ToString(@"hh\:mm")</td>
+        </MatTableRow>
+    </MatTable>
+}
+else
+{
+    <span>searching...</span>
+}
+
+@functions
+{
+    [Parameter]
+    public string SearchText { get; set; }
+
+    public ListResult<Track> Tracks { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Console.WriteLine("AfterRender " + SearchText);
+        base.OnAfterRender(firstRender);
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Tracks = null;
+        Console.WriteLine("ParameterSet " + SearchText);
+        Tracks = await TrackService.SearchTracks(SearchText);
+        base.OnParametersSet();
+    }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Init " + SearchText);
+        base.OnInitialized();
+    }
+}
