@@ -1,4 +1,5 @@
 ﻿using Blazor.Extensions.Storage;
+using Blazor.Extensions.Storage.Interfaces;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MusicLibrary.Model;
@@ -12,13 +13,13 @@ namespace MusicLibrary.FrontEnd.Blazor.Services
     public class MusicLibraryAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly HttpClient httpClient;
-        private readonly LocalStorage localStorage;
+        private readonly ILocalStorage localStorage;
 
         private string token;
         private User user;
         private ClaimsPrincipal principal;
 
-        public MusicLibraryAuthenticationStateProvider(HttpClient httpClient, LocalStorage localStorage)
+        public MusicLibraryAuthenticationStateProvider(HttpClient httpClient, ILocalStorage localStorage)
         {
             this.httpClient = httpClient;
             this.localStorage = localStorage;
