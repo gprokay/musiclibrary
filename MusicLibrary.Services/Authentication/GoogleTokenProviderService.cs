@@ -89,7 +89,7 @@ namespace MusicLibrary.Services
             return principal.GetUser();
         }
 
-        private async Task<Userinfoplus> GetUserInfo(string authCode, CancellationToken cancellationToken)
+        private async Task<Userinfo> GetUserInfo(string authCode, CancellationToken cancellationToken)
         {
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {

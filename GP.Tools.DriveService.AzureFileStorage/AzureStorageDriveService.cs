@@ -1,4 +1,4 @@
-﻿using Microsoft.WindowsAzure.Storage.File;
+﻿using Microsoft.Azure.Storage.File;
 using System;
 using System.Collections.Generic;
 using System.IO;

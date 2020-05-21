@@ -1,8 +1,8 @@
 ﻿using GP.Tools.DriveService;
 using GP.Tools.DriveService.AzureFileStorage;
 using GP.Tools.DriveService.FileSystem;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.File;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.File;
 using System;
 
 namespace MusicLibrary.Services.DriveService

@@ -54,6 +54,7 @@ namespace MusicLibrary.FrontEnd.Blazor.Services
             var trackId = 0;
 
             if (trackIds.Length == 0) return Task.CompletedTask;
+
             lock (lockObject)
             {
                 currentlyPlayingIndex++;

@@ -8,11 +8,11 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.Extensions.Storage" Version="1.1.0-preview3" />
-    <PackageReference Include="MatBlazor" Version="2.2.0" />
+    <PackageReference Include="MatBlazor" Version="2.5.0-preview-005" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor" Version="3.2.0-preview1.20073.1" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Build" Version="3.2.0-preview1.20073.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.DevServer" Version="3.2.0-preview1.20073.1" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>

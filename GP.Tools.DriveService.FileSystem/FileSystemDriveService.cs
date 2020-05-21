@@ -24,23 +24,20 @@ namespace GP.Tools.DriveService.FileSystem
 
         public Task<IFolder> GetRootAsync()
         {
-            return Task<IFolder>.Factory.StartNew(() => new FileSystemFolder(Root, Root, Root));
+            return Task.FromResult<IFolder>(new FileSystemFolder(Root, Root, Root));
         }
 
         public Task<IReadOnlyCollection<IDriveItem>> GetChildrenAsync(IFolder folder)
         {
-            return Task<IReadOnlyCollection<IDriveItem>>.Factory.StartNew(
-                () =>
-                    {
-                        return
+            return Task.FromResult<IReadOnlyCollection<IDriveItem>>(
                             Directory.GetDirectories(folder.Id)
                                 .Select(d => new FileSystemFolder(new DirectoryInfo(d)))
                                 .Union(
                                     Directory.GetFiles(folder.Id)
                                         .Select(f => new FileSystemFile(new FileInfo(f)))
                                         .Cast<IDriveItem>())
-                                .ToList();
-                    });
+                                .ToArray()
+                    );
         }
 
         public async Task<IFile> CopyToAsync(

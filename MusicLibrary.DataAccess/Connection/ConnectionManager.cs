@@ -126,12 +126,12 @@ namespace MusicLibrary.DataAccess.Connection
             }
 
             if (connection.ReferenceCount > 0)
-            { return; }
+                return;
 
             lock (_connections)
             {
                 if (connection.ReferenceCount > 0)
-                { return; }
+                    return;
 
                 _connections.Remove(connection.Key);
             }
